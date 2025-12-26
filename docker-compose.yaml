@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # Gitea: Git Service (Alternative GitHub)
+  gitea:
+    image: gitea/gitea:latest
+    container_name: gitea
+    restart: always
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+    networks:
+      - cicd-net
+    ports:
+      - "3001:3000" # Diakses di port 3001 agar tidak bentrok
+      - "222:22"
+    volumes:
+      - gitea_data:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+
+  # Jenkins: CI/CD Pipeline Control
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    privileged: true
+    user: root
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    networks:
+      - cicd-net
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  # SonarQube: Static Analysis Security Testing (SAST)
+  sonarqube:
+    image: sonarqube:community
+    container_name: sonarqube
+    ports:
+      - "9000:9000"
+    networks:
+      - cicd-net
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+
+  # Trivy: Container Image Security Scan
+  trivy:
+    image: aquasec/trivy:latest
+    container_name: trivy-server
+    command: server --listen 0.0.0.0:4954
+    networks:
+      - cicd-net
+    volumes:
+      - trivy_cache:/root/.cache/
+
+networks:
+  cicd-net:
+    driver: bridge
+
+volumes:
+  gitea_data:
+  jenkins_data:
+  sonarqube_data:
+  trivy_cache:
