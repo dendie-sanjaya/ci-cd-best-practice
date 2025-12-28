@@ -1,136 +1,126 @@
+
 # DevOps CI/CD Best Practice
 
-Panduan ini merupakan dokumentasi komprehensif mengenai penerapan **DevOps dan CI/CD (Continuous Integration / Continuous Deployment)** menggunakan berbagai tools open source. Dokumen ini disusun sebagai referensi teknis sekaligus best practice untuk tim engineering dalam membangun pipeline otomasi yang stabil, aman, dan dapat diskalakan.
+This guide provides comprehensive documentation for implementing **DevOps and CI/CD (Continuous Integration / Continuous Deployment)** using various open source tools. It is designed as a technical reference and best practice for engineering teams to build automation pipelines that are stable, secure, and scalable.
 
 
+## History and Background of DevOps
 
+DevOps became popular around 2007–2009 as a response to classic problems in software development, especially the separation (silos) between Development and Operations teams. Developers focused on releasing features quickly, while Operations prioritized system stability. These different goals often caused conflicts, release delays, and increased risk of failure in production.
 
-## Sejarah DevOps dan Latar Belakang Kemunculannya
+DevOps emerged as a cultural, practical, and tooling approach that unifies both roles. With DevOps, the build, test, release, and deployment processes are automated, making them faster, more consistent, and repeatable. This practice is supported by the growth of cloud technology, containers, and automation tools like Jenkins and Docker. Today, DevOps is an industry standard for modern application development.
 
-Konsep DevOps mulai dikenal sekitar tahun 2007–2009 sebagai respons atas permasalahan klasik dalam pengembangan perangkat lunak, yaitu adanya sekat (silo) antara tim Development dan tim Operations. Pada masa itu, tim development berfokus pada kecepatan rilis fitur, sementara tim operations menitikberatkan stabilitas sistem. Perbedaan tujuan ini sering memicu konflik, keterlambatan rilis, dan meningkatnya risiko kegagalan di lingkungan produksi.
-
-DevOps muncul sebagai pendekatan budaya, praktik, dan tooling yang menyatukan kedua peran tersebut. Dengan DevOps, proses build, test, release, dan deployment diotomatisasi sehingga lebih cepat, konsisten, dan dapat diulang. Praktik ini didukung oleh berkembangnya teknologi cloud, container, serta automation tools seperti Jenkins dan Docker. Saat ini, DevOps telah menjadi standar industri dalam pengembangan aplikasi modern.
-
-
-
-## Daftar Isi
+## Table of Contents
 
 - [DevOps CI/CD Best Practice](#devops-cicd-best-practice)
-  - [Sejarah DevOps dan Latar Belakang Kemunculannya](#sejarah-devops-dan-latar-belakang-kemunculannya)
-  - [Daftar Isi](#daftar-isi)
-  - [2. Apa itu DevOps?](#2-apa-itu-devops)
-  - [3. Kapan DevOps Diperlukan?](#3-kapan-devops-diperlukan)
-  - [4. Arsitektur DevOps](#4-arsitektur-devops)
-  - [5. Instalasi Tools DevOps](#5-instalasi-tools-devops)
-    - [5.1 Menjalankan Docker Compose](#51-menjalankan-docker-compose)
-  - [6. Konfigurasi Jenkins](#6-konfigurasi-jenkins)
-  - [7. Konfigurasi Gitea (Source Code Repository)](#7-konfigurasi-gitea-source-code-repository)
+  - [History and Background of DevOps](#history-and-background-of-devops)
+  - [Table of Contents](#table-of-contents)
+  - [2. What is DevOps?](#2-what-is-devops)
+  - [3. When is DevOps Needed?](#3-when-is-devops-needed)
+  - [4. DevOps Architecture](#4-devops-architecture)
+  - [5. Installing DevOps Tools](#5-installing-devops-tools)
+    - [5.1 Running Docker Compose](#51-running-docker-compose)
+  - [6. Jenkins Configuration](#6-jenkins-configuration)
+  - [7. Gitea Configuration (Source Code Repository)](#7-gitea-configuration-source-code-repository)
     - [7.1 Repository Management](#71-repository-management)
-    - [7.2 Webhook dan Integrasi Jenkins](#72-webhook-dan-integrasi-jenkins)
-    - [7.3 Integrasi Gitea ke Jenkins](#73-integrasi-gitea-ke-jenkins)
-    - [7.4 Instalasi Plugin Gitea di Jenkins](#74-instalasi-plugin-gitea-di-jenkins)
-    - [7.5 Konfigurasi Credential Gitea](#75-konfigurasi-credential-gitea)
-    - [7.6 Whitelist IP Webhook](#76-whitelist-ip-webhook)
-  - [8. Konfigurasi Docker](#8-konfigurasi-docker)
-    - [8.1 Instalasi Docker Plugin di Jenkins](#81-instalasi-docker-plugin-di-jenkins)
-    - [8.2 Akses Docker dari Jenkins](#82-akses-docker-dari-jenkins)
-  - [9. Konfigurasi SonarQube](#9-konfigurasi-sonarqube)
-    - [9.1 Integrasi SonarQube ke Jenkins](#91-integrasi-sonarqube-ke-jenkins)
-    - [9.2 Konfigurasi Global Variable SonarQube](#92-konfigurasi-global-variable-sonarqube)
-    - [9.3 Generate Token SonarQube](#93-generate-token-sonarqube)
-  - [10. Konfigurasi Trivy](#10-konfigurasi-trivy)
-    - [10.1 Instalasi Plugin Trivy](#101-instalasi-plugin-trivy)
-    - [10.2 Konfigurasi Trivy](#102-konfigurasi-trivy)
-    - [10.3 Tampilan Report Trivy](#103-tampilan-report-trivy)
-  - [11. Konfigurasi Docker Hub (Artifact Registry)](#11-konfigurasi-docker-hub-artifact-registry)
-  - [12. Konfigurasi Auto Deploy ke Server Target](#12-konfigurasi-auto-deploy-ke-server-target)
-  - [13. Flow CI/CD Summary](#13-flow-cicd-summary)
-  - [15. Pipeline Jenkins CI/CD](#15-pipeline-jenkins-cicd)
-    - [15.1 Membuat Pipeline Baru](#151-membuat-pipeline-baru)
-    - [15.2 Konfigurasi Trigger](#152-konfigurasi-trigger)
+    - [7.2 Webhook and Jenkins Integration](#72-webhook-and-jenkins-integration)
+    - [7.3 Integrating Gitea with Jenkins](#73-integrating-gitea-with-jenkins)
+    - [7.4 Installing Gitea Plugin in Jenkins](#74-installing-gitea-plugin-in-jenkins)
+    - [7.5 Gitea Credential Configuration](#75-gitea-credential-configuration)
+    - [7.6 Webhook IP Whitelist](#76-webhook-ip-whitelist)
+  - [8. Docker Configuration](#8-docker-configuration)
+    - [8.1 Installing Docker Plugin in Jenkins](#81-installing-docker-plugin-in-jenkins)
+    - [8.2 Accessing Docker from Jenkins](#82-accessing-docker-from-jenkins)
+  - [9. SonarQube Configuration](#9-sonarqube-configuration)
+    - [9.1 Integrating SonarQube with Jenkins](#91-integrating-sonarqube-with-jenkins)
+    - [9.2 SonarQube Global Variable Configuration](#92-sonarqube-global-variable-configuration)
+    - [9.3 Generating SonarQube Token](#93-generating-sonarqube-token)
+  - [10. Trivy Configuration](#10-trivy-configuration)
+    - [10.1 Installing Trivy Plugin](#101-installing-trivy-plugin)
+    - [10.2 Trivy Configuration](#102-trivy-configuration)
+    - [10.3 Trivy Report View](#103-trivy-report-view)
+  - [11. Docker Hub Configuration (Artifact Registry)](#11-docker-hub-configuration-artifact-registry)
+  - [12. Auto Deploy to Target Server](#12-auto-deploy-to-target-server)
+  - [13. CI/CD Flow Summary](#13-cicd-flow-summary)
+  - [15. Jenkins CI/CD Pipeline](#15-jenkins-cicd-pipeline)
+    - [15.1 Creating a New Pipeline](#151-creating-a-new-pipeline)
+    - [15.2 Trigger Configuration](#152-trigger-configuration)
     - [15.3 Jenkinsfile](#153-jenkinsfile)
-    - [15.4 Overview Pipeline](#154-overview-pipeline)
-    - [15.5 Verifikasi Git Version](#155-verifikasi-git-version)
-    - [15.6 Hasil Scan SonarQube](#156-hasil-scan-sonarqube)
-    - [15.7 Quality Gate SonarQube](#157-quality-gate-sonarqube)
-    - [15.8 Hasil Scan Trivy](#158-hasil-scan-trivy)
-    - [15.9 Push Image ke Docker Hub](#159-push-image-ke-docker-hub)
-    - [15.10 Hasil Deploy ke Server](#1510-hasil-deploy-ke-server)
+    - [15.4 Pipeline Overview](#154-pipeline-overview)
+    - [15.5 Git Version Verification](#155-git-version-verification)
+    - [15.6 SonarQube Scan Results](#156-sonarqube-scan-results)
+    - [15.7 SonarQube Quality Gate](#157-sonarqube-quality-gate)
+    - [15.8 Trivy Scan Results](#158-trivy-scan-results)
+    - [15.9 Push Image to Docker Hub](#159-push-image-to-docker-hub)
+    - [15.10 Deploy Results to Server](#1510-deploy-results-to-server)
 
 
+## 2. What is DevOps?
+
+DevOps is a collaborative approach that integrates software development and system operations into one automated workflow. DevOps is not just about tools, but also about changing work culture, communication patterns, and shared responsibility. With DevOps, every code change goes through build, testing, and deployment in a consistent way.
+
+DevOps practices help teams detect errors early, reduce human mistakes, and speed up time-to-market. It also encourages continuous monitoring and feedback, so application quality keeps improving over time.
 
 
+## 3. When is DevOps Needed?
 
-## 2. Apa itu DevOps?
+DevOps is needed when applications become more complex and require faster releases without sacrificing stability. Organizations with frequent deployments benefit greatly from CI/CD pipeline automation. DevOps is also suitable for teams that want to improve cross-functional collaboration.
 
-DevOps adalah pendekatan kolaboratif yang mengintegrasikan proses pengembangan perangkat lunak dan operasional sistem dalam satu alur kerja yang terotomasi. DevOps tidak hanya berbicara tentang tools, tetapi juga perubahan budaya kerja, pola komunikasi, dan tanggung jawab bersama. Dengan DevOps, setiap perubahan kode dapat melalui proses build, testing, dan deployment secara konsisten.
-
-Praktik DevOps membantu tim mendeteksi error lebih awal, mengurangi human error, serta mempercepat time-to-market. Selain itu, DevOps mendorong monitoring dan feedback berkelanjutan sehingga kualitas aplikasi terus meningkat dari waktu ke waktu.
-
+With DevOps, manual processes that are prone to errors can be minimized. This is very important for large-scale systems with many dependencies and deployment environments. DevOps also supports continuous improvement through fast and measurable feedback.
 
 
-## 3. Kapan DevOps Diperlukan?
+## 4. DevOps Architecture
 
-DevOps diperlukan ketika aplikasi berkembang semakin kompleks dan membutuhkan rilis yang lebih cepat tanpa mengorbankan stabilitas. Organisasi dengan frekuensi deployment tinggi akan sangat terbantu dengan otomasi pipeline CI/CD. Selain itu, DevOps cocok diterapkan pada tim yang ingin meningkatkan kolaborasi lintas fungsi.
+The DevOps architecture in this implementation is designed to support end-to-end CI/CD workflows. Each component has a specific role in ensuring application quality, security, and consistency. Integration between tools is automated through Jenkins pipelines.
 
-Dengan DevOps, proses manual yang rawan kesalahan dapat diminimalkan. Hal ini sangat penting pada sistem berskala besar yang memiliki banyak dependensi dan lingkungan deployment. DevOps juga mendukung praktik continuous improvement melalui feedback yang cepat dan terukur.
+![DevOps Architecture](./design/arsitekur.png)
 
+- **Gitea** as the source code repository
+- **Jenkins** as the CI/CD pipeline orchestrator
+- **SonarQube** for code quality and security analysis
+- **Trivy** for container vulnerability scanning
+- **Docker** as the container engine
+- **Docker Hub** as the artifact registry
+- **Portainer** for container management
 
+This architecture is modular and can be expanded as needed by the organization.
 
-## 4. Arsitektur DevOps
-
-Arsitektur DevOps pada implementasi ini dirancang untuk mendukung alur CI/CD end-to-end. Setiap komponen memiliki peran spesifik dalam memastikan kualitas, keamanan, dan konsistensi aplikasi. Integrasi antar tools dilakukan secara otomatis melalui pipeline Jenkins.
-
-![Arsitektur DevOps](./design/arsitekur.png)
-
-- **Gitea** sebagai repository source code
-- **Jenkins** sebagai orchestrator pipeline CI/CD
-- **SonarQube** untuk analisis kualitas dan keamanan kode
-- **Trivy** untuk pemindaian kerentanan container
-- **Docker** sebagai container engine
-- **Docker Hub** sebagai artifact registry
-- **Portainer** untuk manajemen container
-
-Arsitektur ini bersifat modular dan dapat dikembangkan sesuai kebutuhan organisasi.
-
- Hasi Proses Auto CI/CD menggunakan jenkins
+Auto CI/CD process result using Jenkins:
 
 ![Deploy Result](./ss/pipeline-17.jpg)
 
-## 5. Instalasi Tools DevOps
 
-Seluruh tools DevOps dijalankan menggunakan Docker Compose untuk memudahkan proses setup dan konsistensi environment. Pendekatan ini memastikan setiap service berjalan terisolasi dan dapat direproduksi di lingkungan lain.
+## 5. Installing DevOps Tools
 
-### 5.1 Menjalankan Docker Compose
+All DevOps tools are run using Docker Compose to simplify setup and ensure environment consistency. This approach makes sure each service runs in isolation and can be reproduced in other environments.
+
+### 5.1 Running Docker Compose
 
 ```bash
 docker-compose up -d
 ```
 
-Perintah ini akan menjalankan seluruh service secara otomatis di background.
+This command will start all services automatically in the background.
 
 ![Docker Compose](./ss/docker-compose.jpg)
 ![Docker Compose 2](./ss/docker-compose-2.jpg)
 
 
+## 6. Jenkins Configuration
 
+Jenkins acts as the center of CI/CD automation, orchestrating the entire pipeline process. From fetching source code, building the application, analyzing quality, to deployment—all are handled by Jenkins.
 
-## 6. Konfigurasi Jenkins
-
-Jenkins berperan sebagai pusat otomasi CI/CD yang mengorkestrasi seluruh proses pipeline. Mulai dari pengambilan source code, build aplikasi, analisis kualitas, hingga deployment dilakukan melalui Jenkins.
-
-Akses Jenkins melalui:
+Access Jenkins at:
 
 ```
 http://[ip-server]:8080
-
 ```
 
-Konfigurasi awal Jenkins meliputi setup user admin, instalasi plugin, serta integrasi dengan tools lain seperti Gitea, Docker, dan SonarQube.
+Initial Jenkins setup includes creating the admin user, installing plugins, and integrating with other tools like Gitea, Docker, and SonarQube.
 
 ![Jenkins Setup](./ss/jenknis-1.jpg)
 
-Password awal Jenkins dapat diperoleh dari dalam container Jenkins.
+The initial Jenkins password can be obtained from inside the Jenkins container.
 
 ![Initial Password](./ss/jenknis-2.jpg)
 
@@ -139,48 +129,44 @@ Password awal Jenkins dapat diperoleh dari dalam container Jenkins.
 ![Jenkins Ready](./ss/jenknis-4.jpg)
 
 
+## 7. Gitea Configuration (Source Code Repository)
 
-## 7. Konfigurasi Gitea (Source Code Repository)
-
-Gitea digunakan sebagai repository source code yang ringan dan mudah dikelola. Setiap perubahan kode pada repository akan menjadi pemicu pipeline CI/CD.
+Gitea is a lightweight and easy-to-manage source code repository. Every code change in the repository triggers the CI/CD pipeline.
 
 ### 7.1 Repository Management
 
-Repository berfungsi sebagai single source of truth bagi aplikasi. Praktik version control yang baik akan memudahkan kolaborasi dan audit perubahan kode.
+The repository serves as the single source of truth for the application. Good version control practices make collaboration and code change auditing easier.
 
 ![Create Repo](./ss/gitea-2.jpg)
 ![Push Code](./ss/gitea-3.jpg)
 
-### 7.2 Webhook dan Integrasi Jenkins
+### 7.2 Webhook and Jenkins Integration
 
-Webhook memungkinkan Jenkins menerima notifikasi setiap ada perubahan kode. Dengan mekanisme ini, proses CI/CD dapat berjalan secara otomatis tanpa intervensi manual.
+Webhooks allow Jenkins to receive notifications whenever code changes. This mechanism enables the CI/CD process to run automatically without manual intervention.
 
 ![Webhook 1](./ss/gitea-4-webhook-jenkis.jpg)
 ![Webhook 2](./ss/gitea-4-webhook-jenkis-2.jpg)
 
-
-### 7.3 Integrasi Gitea ke Jenkins
+### 7.3 Integrating Gitea with Jenkins
 
 ![Gitea Server](./ss/gitea-4-webhook-jenkis-server.jpg)
 ![Gitea Server 2](./ss/gitea-4-webhook-jenkis-server-2.jpg)
 
-
-
-### 7.4 Instalasi Plugin Gitea di Jenkins
+### 7.4 Installing Gitea Plugin in Jenkins
 
 ![Gitea Plugin](./ss/jenknis-5-gitea.jpg)
 ![Gitea Plugin 2](./ss/jenknis-5-gitea-2.jpg)
 
-### 7.5 Konfigurasi Credential Gitea
+### 7.5 Gitea Credential Configuration
 
-Tambahkan credential Gitea agar Jenkins dapat mengakses repository.
+Add Gitea credentials so Jenkins can access the repository.
 
 ![Credential Gitea](./ss/jenknis-7-credential-gitea.jpg)
 ![Credential Gitea 2](./ss/jenknis-7-credential-gitea-2.jpg)
 
-### 7.6 Whitelist IP Webhook
+### 7.6 Webhook IP Whitelist
 
-Tambahkan whitelist IP Jenkins pada konfigurasi Gitea:
+Add Jenkins IP to the whitelist in Gitea configuration:
 
 ```ini
 /data/gitea/conf/app.ini
@@ -192,54 +178,50 @@ ALLOWED_HOST_LIST = jenkins, 172.18.0.0/16
 ![Whitelist](./ss/jenknis-11-pipeline-gitea-tringger.jpg)
 
 
+## 8. Docker Configuration
 
+Docker is used to package the application and its dependencies into containers. This approach ensures consistency between development, testing, and production environments.
 
-## 8. Konfigurasi Docker
+Integrating Docker with Jenkins allows the image build and push process to be automated and standardized.
 
-Docker digunakan untuk membungkus aplikasi beserta dependensinya ke dalam container. Pendekatan ini menjamin konsistensi antara environment development, testing, dan production.
-
-Integrasi Docker dengan Jenkins memungkinkan proses build image dan push ke registry dilakukan secara otomatis dan terstandarisasi.
-
-### 8.1 Instalasi Docker Plugin di Jenkins
+### 8.1 Installing Docker Plugin in Jenkins
 
 ![Docker Plugin](./ss/jenknis-6-docker.jpg)
 ![Docker Plugin 2](./ss/jenknis-6-docker-2.jpg)
 
-### 8.2 Akses Docker dari Jenkins
+### 8.2 Accessing Docker from Jenkins
 
-Pastikan Docker CLI dapat diakses dari container Jenkins.
+Make sure the Docker CLI can be accessed from the Jenkins container.
 
 ![Docker CLI](./ss/jenknis-11-pipeline-docker-cli.jpg)
 
 
+## 9. SonarQube Configuration
 
-## 9. Konfigurasi SonarQube
+SonarQube is used for code quality and security analysis. This tool helps detect bugs, code smells, and potential vulnerabilities early in the process.
 
-SonarQube berfungsi sebagai alat analisis kualitas kode dan keamanan. Tool ini membantu mendeteksi bug, code smell, dan potensi vulnerability sejak tahap awal.
+Integrating SonarQube with Jenkins ensures every build is evaluated based on the defined quality gate.
 
-Integrasi SonarQube ke Jenkins memastikan setiap build dievaluasi berdasarkan quality gate yang telah ditentukan.
-
-
-### 9.1 Integrasi SonarQube ke Jenkins
+### 9.1 Integrating SonarQube with Jenkins
 
 ![SonarQube Integration](./ss/jenknis-11-pipeline-sonarcube.jpg)
 ![SonarQube Integration 2](./ss/jenknis-11-pipeline-sonarcube-2.jpg)
 
-### 9.2 Konfigurasi Global Variable SonarQube
+### 9.2 SonarQube Global Variable Configuration
 
 ![Global Variable](./ss/jenknis-11-pipeline-sonarcube-global-variable.jpg)
 ![Global Variable 2](./ss/jenknis-11-pipeline-sonarcube-global-variable-2.jpg)
 
-### 9.3 Generate Token SonarQube
+### 9.3 Generating SonarQube Token
 
-Token digunakan untuk autentikasi Jenkins ke SonarQube.
+Tokens are used for Jenkins authentication to SonarQube.
 
 ![Token 1](./ss/jenknis-11-pipeline-sonarcube-token.jpg)
 ![Token 2](./ss/jenknis-11-pipeline-sonarcube-token-2.jpg)
 ![Token 3](./ss/jenknis-11-pipeline-sonarcube-token-3.jpg)
 ![Token 4](./ss/jenknis-11-pipeline-sonarcube-token-4.jpg)
 
-Masukkan token ke Jenkins sebagai credential.
+Add the token to Jenkins as a credential.
 
 ![Token Jenkins](./ss/jenknis-11-pipeline-sonarcube-token-5.jpg)
 ![Token Jenkins 2](./ss/jenknis-11-pipeline-sonarcube-token-6.jpg)
@@ -247,34 +229,31 @@ Masukkan token ke Jenkins sebagai credential.
 ![Token Jenkins 4](./ss/jenknis-11-pipeline-sonarcube-token-8.jpg)
 
 
+## 10. Trivy Configuration
 
-## 10. Konfigurasi Trivy
+Trivy is used to scan container images for security. This tool detects vulnerabilities based on the latest CVE database.
 
-Trivy digunakan untuk memindai image container dari sisi keamanan. Tool ini mendeteksi vulnerability berdasarkan database CVE terbaru.
+With Trivy, the risk of deploying unsafe images can be minimized before the application runs in the target environment.
 
-Dengan Trivy, risiko deployment image yang tidak aman dapat diminimalkan sebelum aplikasi dijalankan di environment target.
-
-### 10.1 Instalasi Plugin Trivy
+### 10.1 Installing Trivy Plugin
 
 ![Trivy Plugin](./ss/jenknis-12-pipeline-overview-trivy-plugin.jpg)
 ![Trivy Plugin 2](./ss/jenknis-12-pipeline-overview-trivy-plugin-2.jpg)
 
-### 10.2 Konfigurasi Trivy
+### 10.2 Trivy Configuration
 
 ![Trivy Setting](./ss/jenknis-12-pipeline-overview-trivy-plugin-3jpg)
 
-### 10.3 Tampilan Report Trivy
+### 10.3 Trivy Report View
 
 ![Trivy Report](./ss/jenknis-12-pipeline-overview-trivy-plugin-4.jpg)
 
 
+## 11. Docker Hub Configuration (Artifact Registry)
 
+Docker Hub is used as a storage place for built images. The registry allows images to be reused by other environments consistently.
 
-## 11. Konfigurasi Docker Hub (Artifact Registry)
-
-Docker Hub berfungsi sebagai tempat penyimpanan image hasil build. Registry memungkinkan image digunakan kembali oleh environment lain secara konsisten.
-
-Integrasi Docker Hub ke Jenkins dilakukan menggunakan token agar proses autentikasi lebih aman.
+Integrating Docker Hub with Jenkins is done using a token for safer authentication.
 
 ![SSH Install](./ss/jenknis-13-autodeploy-docker-1.jpg)
 ![SSH Install 2](./ss/jenknis-13-autodeploy-docker-2.jpg)
@@ -286,46 +265,41 @@ apt-get update && apt-get install -y sshpass
 ![Docker Version](./ss/jenknis-2.jpg)
 
 
+## 12. Auto Deploy to Target Server
 
-## 12. Konfigurasi Auto Deploy ke Server Target
+Auto deploy allows applications to be deployed to the target server automatically after the CI/CD pipeline succeeds. This process uses SSH and Docker on the target server.
 
-Auto deploy memungkinkan aplikasi dideploy ke server target secara otomatis setelah pipeline CI/CD berhasil. Proses ini memanfaatkan SSH dan Docker pada server tujuan.
-
-Dengan auto deploy, waktu rilis aplikasi dapat dipersingkat dan risiko human error dapat dikurangi.
-
+With auto deploy, release time is shortened and the risk of human error is reduced.
 
 
+## 13. CI/CD Flow Summary
 
-## 13. Flow CI/CD Summary
+This section provides a concise yet complete overview of the CI/CD workflow implemented in this document. The CI/CD flow is designed to ensure every code change passes through quality validation, security checks, and automated deployment.
 
-Section ini memberikan gambaran ringkas namun menyeluruh mengenai alur kerja CI/CD yang diimplementasikan pada dokumen ini. Flow CI/CD dirancang untuk memastikan setiap perubahan kode melewati tahapan validasi kualitas, keamanan, dan deployment secara otomatis.
+The flow starts when a developer pushes code to the Gitea repository. This change triggers a webhook that sends an event to Jenkins. Jenkins then runs the CI/CD pipeline as defined in the repository's Jenkinsfile.
 
-Alur dimulai ketika developer melakukan push code ke repository Gitea. Perubahan tersebut akan memicu webhook yang mengirimkan event ke Jenkins. Jenkins kemudian menjalankan pipeline CI/CD sesuai dengan Jenkinsfile yang telah didefinisikan di repository.
+The first stage of the pipeline is checking out the source code and building the application. After a successful build, Jenkins runs code quality analysis using SonarQube to ensure standards are met. If the quality gate fails, the pipeline stops.
 
-Tahap pertama pipeline adalah proses checkout source code dan build aplikasi. Setelah build berhasil, Jenkins menjalankan analisis kualitas kode menggunakan SonarQube untuk memastikan standar kualitas terpenuhi. Jika quality gate tidak lolos, pipeline akan dihentikan.
+Next, the resulting container image is scanned using Trivy to detect potential vulnerabilities. This step helps prevent unsafe images from entering the next environment.
 
-Selanjutnya, image container yang dihasilkan akan dipindai menggunakan Trivy untuk mendeteksi potensi vulnerability. Proses ini bertujuan untuk mencegah image yang tidak aman masuk ke environment berikutnya.
-
-Apabila seluruh tahap validasi berhasil, image akan di-push ke Docker Hub sebagai artifact registry. Tahap terakhir adalah proses auto deploy ke server target menggunakan Docker dan SSH. Dengan flow ini, seluruh proses CI/CD berjalan otomatis, konsisten, dan dapat diaudit.
-
+If all validation stages succeed, the image is pushed to Docker Hub as an artifact registry. The final stage is auto deploy to the target server using Docker and SSH. With this flow, the entire CI/CD process is automatic, consistent, and auditable.
 
 
-## 15. Pipeline Jenkins CI/CD
+## 15. Jenkins CI/CD Pipeline
 
-Pipeline Jenkins merupakan representasi alur CI/CD secara end-to-end. Pipeline ini mencakup tahapan checkout code, build, testing, scanning, push artifact, hingga deployment.
+The Jenkins pipeline represents the end-to-end CI/CD workflow. It includes stages for code checkout, build, testing, scanning, artifact push, and deployment.
 
-Setiap tahap pipeline dirancang agar bersifat repeatable, traceable, dan mudah dikembangkan di masa depan. Pipeline CI/CD menjadi fondasi utama dalam penerapan DevOps yang matang dan profesional.
+Each pipeline stage is designed to be repeatable, traceable, and easy to improve in the future. The CI/CD pipeline is the main foundation for mature and professional DevOps implementation.
 
+This section explains how to create a CI/CD pipeline from start to finish.
 
-Tahapan ini menjelaskan pembuatan pipeline CI/CD secara end-to-end.
-
-### 15.1 Membuat Pipeline Baru
+### 15.1 Creating a New Pipeline
 
 ![Pipeline 1](./ss/pipeline-1.jpg)
 ![Pipeline 2](./ss/pipeline-2.jpg)
 ![Pipeline 3](./ss/pipeline-3.jpg)
 
-### 15.2 Konfigurasi Trigger
+### 15.2 Trigger Configuration
 
 ![Trigger 1](./ss/pipeline-3.jpg)
 ![Trigger 2](./ss/pipeline-4.jpg)
@@ -335,40 +309,40 @@ Tahapan ini menjelaskan pembuatan pipeline CI/CD secara end-to-end.
 ![Jenkinsfile](./Jenkinsfile.groovy)
 ![Pipeline Script](./ss/pipeline-6.jpg)
 
-### 15.4 Overview Pipeline
+### 15.4 Pipeline Overview
 
 ![Overview 1](./ss/pipeline-9.jpg)
 ![Overview 2](./ss/pipeline-10.jpg)
 
-### 15.5 Verifikasi Git Version
+### 15.5 Git Version Verification
 
 ![Git Version 1](./ss/pipeline-7.jpg)
 ![Git Version 2](./ss/pipeline-8.jpg)
 ![Git Version 3](./ss/pipeline-8-1.jpg)
 
-### 15.6 Hasil Scan SonarQube
+### 15.6 SonarQube Scan Results
 
 ![Sonar Scan](./ss/pipeline-11.jpg)
 
-### 15.7 Quality Gate SonarQube
+### 15.7 SonarQube Quality Gate
 
 ![Quality Gate](./ss/pipeline-12.jpg)
 ![Quality Detail](./ss/pipeline-13.jpg)
 
-### 15.8 Hasil Scan Trivy
+### 15.8 Trivy Scan Results
 
 ![Trivy Scan 1](./ss/pipeline-14.jpg)
 ![Trivy Scan 2](./ss/pipeline-15.jpg)
 
-### 15.9 Push Image ke Docker Hub
+### 15.9 Push Image to Docker Hub
 
 ![Docker Hub Push](./ss/pipeline-16.jpg)
 
-### 15.10 Hasil Deploy ke Server
+### 15.10 Deploy Results to Server
 
 ![Deploy Result](./ss/pipeline-17.jpg)
 ![Deploy Container](./ss/pipeline-18.jpg)
 
-Aplikasi berhasil diakses melalui endpoint yang tersedia.
+The application can be accessed through the available endpoint.
 
 ![Application Access](./ss/pipeline-19.jpg)
