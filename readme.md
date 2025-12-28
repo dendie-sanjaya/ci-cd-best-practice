@@ -298,18 +298,22 @@ This section explains how to create a CI/CD pipeline from start to finish.
 ![Pipeline 1](./ss/pipeline-1.jpg)
 ![Pipeline 2](./ss/pipeline-2.jpg)
 ![Pipeline 3](./ss/pipeline-3.jpg)
+![Pipeline 3](./ss/pipeline-4.jpg)
+![Pipeline 3](./ss/pipeline-6.jpg)
 
 ### 15.2 Trigger Configuration
 
-![Trigger 1](./ss/pipeline-3.jpg)
-![Trigger 2](./ss/pipeline-4.jpg)
+![Pipeline 1](./ss/pipeline-1.jpg)
+![Pipeline 2](./ss/pipeline-2.jpg)
+![Pipeline 3](./ss/pipeline-3.jpg)
+![Trigger 1](./ss/pipeline-4.jpg)
+![Trigger 2](./ss/pipeline-5.jpg)
 
 ### 15.3 Jenkinsfile
 
 **This is jenkis fie pipeline:**
 
 ![Jenkinsfile](./Jenkinsfile.groovy)
-
 
 ![Pipeline Script](./ss/pipeline-6.jpg)
 
