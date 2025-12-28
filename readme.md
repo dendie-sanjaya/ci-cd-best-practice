@@ -2,7 +2,8 @@
 
 Panduan ini merupakan dokumentasi komprehensif mengenai penerapan **DevOps dan CI/CD (Continuous Integration / Continuous Deployment)** menggunakan berbagai tools open source. Dokumen ini disusun sebagai referensi teknis sekaligus best practice untuk tim engineering dalam membangun pipeline otomasi yang stabil, aman, dan dapat diskalakan.
 
----
+
+
 
 ## Sejarah DevOps dan Latar Belakang Kemunculannya
 
@@ -10,7 +11,7 @@ Konsep DevOps mulai dikenal sekitar tahun 2007–2009 sebagai respons atas perma
 
 DevOps muncul sebagai pendekatan budaya, praktik, dan tooling yang menyatukan kedua peran tersebut. Dengan DevOps, proses build, test, release, dan deployment diotomatisasi sehingga lebih cepat, konsisten, dan dapat diulang. Praktik ini didukung oleh berkembangnya teknologi cloud, container, serta automation tools seperti Jenkins dan Docker. Saat ini, DevOps telah menjadi standar industri dalam pengembangan aplikasi modern.
 
----
+
 
 ## Daftar Isi
 
@@ -44,7 +45,6 @@ DevOps muncul sebagai pendekatan budaya, praktik, dan tooling yang menyatukan ke
   - [11. Konfigurasi Docker Hub (Artifact Registry)](#11-konfigurasi-docker-hub-artifact-registry)
   - [12. Konfigurasi Auto Deploy ke Server Target](#12-konfigurasi-auto-deploy-ke-server-target)
   - [13. Flow CI/CD Summary](#13-flow-cicd-summary)
-  - [14. Pipeline Jenkins CI/CD](#14-pipeline-jenkins-cicd)
   - [15. Pipeline Jenkins CI/CD](#15-pipeline-jenkins-cicd)
     - [15.1 Membuat Pipeline Baru](#151-membuat-pipeline-baru)
     - [15.2 Konfigurasi Trigger](#152-konfigurasi-trigger)
@@ -57,7 +57,7 @@ DevOps muncul sebagai pendekatan budaya, praktik, dan tooling yang menyatukan ke
     - [15.9 Push Image ke Docker Hub](#159-push-image-ke-docker-hub)
     - [15.10 Hasil Deploy ke Server](#1510-hasil-deploy-ke-server)
 
----
+
 
 
 
@@ -67,7 +67,7 @@ DevOps adalah pendekatan kolaboratif yang mengintegrasikan proses pengembangan p
 
 Praktik DevOps membantu tim mendeteksi error lebih awal, mengurangi human error, serta mempercepat time-to-market. Selain itu, DevOps mendorong monitoring dan feedback berkelanjutan sehingga kualitas aplikasi terus meningkat dari waktu ke waktu.
 
----
+
 
 ## 3. Kapan DevOps Diperlukan?
 
@@ -75,7 +75,7 @@ DevOps diperlukan ketika aplikasi berkembang semakin kompleks dan membutuhkan ri
 
 Dengan DevOps, proses manual yang rawan kesalahan dapat diminimalkan. Hal ini sangat penting pada sistem berskala besar yang memiliki banyak dependensi dan lingkungan deployment. DevOps juga mendukung praktik continuous improvement melalui feedback yang cepat dan terukur.
 
----
+
 
 ## 4. Arsitektur DevOps
 
@@ -93,7 +93,9 @@ Arsitektur DevOps pada implementasi ini dirancang untuk mendukung alur CI/CD end
 
 Arsitektur ini bersifat modular dan dapat dikembangkan sesuai kebutuhan organisasi.
 
----
+ Hasi Proses Auto CI/CD menggunakan jenkins
+
+![Deploy Result](./ss/pipeline-17.jpg)
 
 ## 5. Instalasi Tools DevOps
 
@@ -111,7 +113,7 @@ Perintah ini akan menjalankan seluruh service secara otomatis di background.
 ![Docker Compose 2](./ss/docker-compose-2.jpg)
 
 
----
+
 
 ## 6. Konfigurasi Jenkins
 
@@ -136,7 +138,7 @@ Password awal Jenkins dapat diperoleh dari dalam container Jenkins.
 
 ![Jenkins Ready](./ss/jenknis-4.jpg)
 
----
+
 
 ## 7. Konfigurasi Gitea (Source Code Repository)
 
@@ -189,7 +191,7 @@ ALLOWED_HOST_LIST = jenkins, 172.18.0.0/16
 
 ![Whitelist](./ss/jenknis-11-pipeline-gitea-tringger.jpg)
 
----
+
 
 
 ## 8. Konfigurasi Docker
@@ -209,7 +211,7 @@ Pastikan Docker CLI dapat diakses dari container Jenkins.
 
 ![Docker CLI](./ss/jenknis-11-pipeline-docker-cli.jpg)
 
----
+
 
 ## 9. Konfigurasi SonarQube
 
@@ -244,7 +246,7 @@ Masukkan token ke Jenkins sebagai credential.
 ![Token Jenkins 3](./ss/jenknis-11-pipeline-sonarcube-token-7.jpg)
 ![Token Jenkins 4](./ss/jenknis-11-pipeline-sonarcube-token-8.jpg)
 
----
+
 
 ## 10. Konfigurasi Trivy
 
@@ -266,7 +268,7 @@ Dengan Trivy, risiko deployment image yang tidak aman dapat diminimalkan sebelum
 ![Trivy Report](./ss/jenknis-12-pipeline-overview-trivy-plugin-4.jpg)
 
 
----
+
 
 ## 11. Konfigurasi Docker Hub (Artifact Registry)
 
@@ -283,7 +285,7 @@ apt-get update && apt-get install -y sshpass
 
 ![Docker Version](./ss/jenknis-2.jpg)
 
----
+
 
 ## 12. Konfigurasi Auto Deploy ke Server Target
 
@@ -292,7 +294,7 @@ Auto deploy memungkinkan aplikasi dideploy ke server target secara otomatis sete
 Dengan auto deploy, waktu rilis aplikasi dapat dipersingkat dan risiko human error dapat dikurangi.
 
 
----
+
 
 ## 13. Flow CI/CD Summary
 
@@ -306,16 +308,14 @@ Selanjutnya, image container yang dihasilkan akan dipindai menggunakan Trivy unt
 
 Apabila seluruh tahap validasi berhasil, image akan di-push ke Docker Hub sebagai artifact registry. Tahap terakhir adalah proses auto deploy ke server target menggunakan Docker dan SSH. Dengan flow ini, seluruh proses CI/CD berjalan otomatis, konsisten, dan dapat diaudit.
 
----
 
-## 14. Pipeline Jenkins CI/CD
+
+## 15. Pipeline Jenkins CI/CD
 
 Pipeline Jenkins merupakan representasi alur CI/CD secara end-to-end. Pipeline ini mencakup tahapan checkout code, build, testing, scanning, push artifact, hingga deployment.
 
 Setiap tahap pipeline dirancang agar bersifat repeatable, traceable, dan mudah dikembangkan di masa depan. Pipeline CI/CD menjadi fondasi utama dalam penerapan DevOps yang matang dan profesional.
 
-
-## 15. Pipeline Jenkins CI/CD
 
 Tahapan ini menjelaskan pembuatan pipeline CI/CD secara end-to-end.
 
